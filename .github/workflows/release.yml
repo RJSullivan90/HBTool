@@ -1,0 +1,68 @@
+#
+# Builds HBTool for macOS and Windows and publishes to GitHub Releases.
+#
+# Triggered by pushing a version tag:
+#
+#     npm version patch      # bumps package.json and creates the tag
+#     git push --follow-tags
+#
+# Each runner builds its own platform because electron-builder needs the native
+# toolchain: a macOS .dmg cannot be produced on Windows and vice versa.
+#
+# GITHUB_TOKEN is provided automatically and is scoped to this repository, so no
+# secret needs configuring for the publish step.
+#
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+
+  build:
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            script: dist:mac
+          - os: windows-latest
+            script: dist:win
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # A missing bundle would produce an app that silently has no imagery, so
+      # fail loudly here instead.
+      - name: Verify the encrypted secrets bundle is present
+        shell: bash
+        run: test -s secrets/secrets.enc.json
+
+      - name: Build and publish
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run ${{ matrix.script }} -- --publish always

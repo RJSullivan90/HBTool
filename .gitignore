@@ -1,0 +1,13 @@
+node_modules/
+dist/
+release/
+
+# The team key itself must NEVER be committed. The encrypted bundle
+# (secrets/secrets.enc.json) is safe and IS committed on purpose.
+*.key
+team-key*
+.env
+.env.*
+
+.DS_Store
+*.log

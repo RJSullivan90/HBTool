@@ -1,0 +1,33 @@
+{
+  "name": "hbtool",
+  "productName": "HBTool",
+  "version": "0.1.0",
+  "description": "Hummingbird Drones geospatial toolkit — cross-platform",
+  "author": {
+    "name": "Hummingbird Drones",
+    "email": "rs@hummingbirddrones.ca"
+  },
+  "license": "UNLICENSED",
+  "private": true,
+  "type": "module",
+  "main": "dist/main.cjs",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test tests/*.test.ts",
+    "start": "npm run build && electron .",
+    "dist": "npm run build && electron-builder",
+    "dist:mac": "npm run build && electron-builder --mac",
+    "dist:win": "npm run build && electron-builder --win",
+    "encrypt-secret": "node scripts/encrypt-secret.mjs"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.9"
+  },
+  "devDependencies": {
+    "electron": "^43.4.0",
+    "electron-builder": "^26.15.3",
+    "esbuild": "^0.28.2",
+    "typescript": "^5.7.2"
+  }
+}

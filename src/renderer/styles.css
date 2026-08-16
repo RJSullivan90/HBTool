@@ -1,0 +1,431 @@
+/*
+ * styles.css — Nova brand applied to the cross-platform shell.
+ *
+ * Palette (see the nova-brand guidelines): Laser Yellow #F1FF66 accents,
+ * Night #191314 and Ivory #ECEAE4 grounds, Forest #406354 for the light-mode
+ * tint. Dark is the default because that is how the tool gets used — at night,
+ * after a shift.
+ *
+ * Both themes are defined by token, and only the tokens change between them, so
+ * a colour can never be defined in one theme and missing in the other.
+ */
+
+:root {
+  --night: #191314;
+  --ivory: #eceae4;
+  --yellow: #f1ff66;
+  --forest: #406354;
+
+  --bg: var(--night);
+  --panel: #221b1c;
+  --panel-2: #2b2324;
+  --text: var(--ivory);
+  --muted: #9c9391;
+  --line: #3a2f31;
+  --accent: var(--yellow);
+  --accent-text: #191314;
+  --ok: #5fd08a;
+  --warn: #e8a33d;
+  --bad: #ef6a5e;
+
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: var(--ivory);
+    --panel: #ffffff;
+    --panel-2: #f3f1eb;
+    --text: #1d1a17;
+    --muted: #6b6560;
+    --line: #d8d4cb;
+    --accent: var(--forest);
+    --accent-text: #ffffff;
+    --ok: #2f8f57;
+    --warn: #a86a12;
+    --bad: #b3382c;
+
+    color-scheme: light;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font:
+    13px/1.45 -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Draggable strip on macOS, where the traffic lights are inset over it. */
+.titlebar {
+  -webkit-app-region: drag;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 52px;
+  padding: 0 16px 0 88px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+  flex: 0 0 auto;
+}
+
+/* Windows has no inset traffic lights, so reclaim the space. */
+body.win .titlebar {
+  padding-left: 16px;
+}
+
+.titlebar button,
+.titlebar input {
+  -webkit-app-region: no-drag;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mark {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--accent);
+  flex: 0 0 auto;
+}
+
+h1 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.titlebar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.version {
+  color: var(--muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.badge {
+  -webkit-app-region: no-drag;
+  background: var(--accent);
+  color: var(--accent-text);
+  border: 0;
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+main {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.search {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+input[type='search'],
+input[type='password'] {
+  flex: 1 1 auto;
+  min-width: 0;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: var(--text);
+  padding: 8px 11px;
+  font: inherit;
+}
+
+input[type='search']:focus,
+input[type='password']:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+
+button {
+  font: inherit;
+  border-radius: 7px;
+  padding: 8px 14px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.primary {
+  background: var(--accent);
+  color: var(--accent-text);
+  font-weight: 600;
+}
+
+.ghost {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--line);
+}
+
+.status {
+  margin: 0;
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+}
+
+.problem {
+  margin: 0;
+  color: var(--warn);
+  font-size: 12px;
+}
+
+/* Match list */
+
+.matches {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.match {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  text-align: left;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 7px 11px;
+  color: inherit;
+}
+
+.match:hover {
+  border-color: var(--muted);
+}
+
+.match[aria-current='true'] {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 18%, var(--panel));
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+  background: var(--muted);
+}
+
+.dot.active {
+  background: var(--ok);
+}
+
+.dot.inactive {
+  background: var(--warn);
+}
+
+.notam {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.name {
+  font-weight: 600;
+}
+
+.place {
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Detail */
+
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detail-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.detail-head h2 {
+  font-size: 14px;
+  margin: 0;
+}
+
+.detail-head .place {
+  flex: 1 1 auto;
+}
+
+.fields {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 4px 8px 0;
+  display: grid;
+  grid-template-columns: minmax(140px, 220px) 1fr auto;
+  gap: 2px 10px;
+  align-items: baseline;
+}
+
+.f-label {
+  color: var(--muted);
+  text-align: right;
+  font-size: 11px;
+}
+
+.f-value {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+  user-select: text;
+}
+
+.copy {
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  padding: 2px 8px;
+  font-size: 11px;
+}
+
+.copy:hover {
+  color: var(--text);
+}
+
+.copy.done {
+  color: var(--ok);
+}
+
+.subhead {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  margin: 4px 0 0;
+}
+
+.stations {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.station {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.notam-text {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  max-height: 130px;
+  overflow-y: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  white-space: pre-wrap;
+  user-select: text;
+  margin: 0;
+}
+
+/* Settings */
+
+.settings {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 8px 12px;
+}
+
+.settings summary {
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.settings-body {
+  padding-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.key-state {
+  font-weight: 400;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.key-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.remember {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 11px;
+  margin: 0;
+}
+
+.disclaimer {
+  color: var(--muted);
+  font-size: 11px;
+  padding-bottom: 4px;
+}
+
+.empty {
+  color: var(--muted);
+  font-size: 12px;
+}

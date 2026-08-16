@@ -1,0 +1,53 @@
+appId: ca.hummingbirddrones.hbtool
+productName: HBTool
+copyright: © Hummingbird Drones
+
+directories:
+  output: release
+  buildResources: build
+
+files:
+  - dist/**
+  - package.json
+
+# The encrypted bundle ships beside the app rather than inside the asar, so it
+# can be inspected (and confirmed to be ciphertext) without unpacking anything.
+extraResources:
+  - from: secrets/secrets.enc.json
+    to: secrets/secrets.enc.json
+
+publish:
+  provider: github
+  owner: RJSullivan90
+  repo: HBTool
+  releaseType: release
+
+mac:
+  category: public.app-category.utilities
+  # zip is REQUIRED alongside dmg: Squirrel.Mac updates from the zip, and
+  # without it electron-updater has nothing to apply.
+  target:
+    - target: dmg
+      arch: [arm64, x64]
+    - target: zip
+      arch: [arm64, x64]
+  # Hardened runtime + notarization need a Developer ID. Until one exists the
+  # build is unsigned, which means: Gatekeeper warns on first open, and
+  # auto-update cannot apply (see src/main/updater.ts). Set these to true and
+  # add the credentials when the certificate is bought.
+  hardenedRuntime: false
+  gatekeeperAssess: false
+  identity: null
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  # Per-user install avoids the UAC prompt entirely, which matters on locked
+  # down field laptops.
+  deleteAppDataOnUninstall: false
