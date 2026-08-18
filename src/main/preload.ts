@@ -22,6 +22,10 @@ const api = {
   fetchTFRs: (refresh: boolean) => ipcRenderer.invoke('tfr:fetch', refresh),
   fetchWeather: (lat: number, lon: number) => ipcRenderer.invoke('tfr:weather', lat, lon),
 
+  fetchFires: (source: string) => ipcRenderer.invoke('fires:fetch', source),
+  saveKML: (suggestedName: string, contents: string) =>
+    ipcRenderer.invoke('file:saveKML', suggestedName, contents),
+
   copy: (text: string) => ipcRenderer.invoke('clipboard:write', text),
 
   updateState: () => ipcRenderer.invoke('update:state'),

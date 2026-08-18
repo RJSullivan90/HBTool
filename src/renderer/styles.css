@@ -64,8 +64,103 @@ body {
   color: var(--text);
   font:
     13px/1.45 -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  overflow: hidden;
+}
+
+/* Shell: fixed sidebar, scrolling pane. */
+
+.shell {
+  display: flex;
+  height: 100%;
+}
+
+.sidebar {
+  width: 214px;
+  flex: 0 0 auto;
+  background: var(--panel);
+  border-right: 1px solid var(--line);
   display: flex;
   flex-direction: column;
+  /* The traffic lights sit over the top of this column on macOS. */
+  padding: 44px 8px 8px;
+  -webkit-app-region: drag;
+}
+
+body.win .sidebar {
+  padding-top: 10px;
+}
+
+.sidebar .brand {
+  padding: 0 8px 10px;
+}
+
+.brand-name {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.tool-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  -webkit-app-region: no-drag;
+}
+
+.tool-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: 7px;
+  padding: 7px 9px;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.tool-item:hover {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.tool-item.on {
+  background: color-mix(in srgb, var(--accent) 24%, transparent);
+  font-weight: 600;
+}
+
+.tool-icon {
+  width: 16px;
+  text-align: center;
+  color: var(--accent);
+}
+
+.sidebar-foot {
+  margin-top: auto;
+  padding: 8px;
+}
+
+.pane {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.pane-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tool {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 /* Draggable strip on macOS, where the traffic lights are inset over it. */
@@ -76,15 +171,10 @@ body {
   justify-content: space-between;
   gap: 12px;
   height: 52px;
-  padding: 0 16px 0 88px;
+  padding: 0 16px;
   border-bottom: 1px solid var(--line);
   background: var(--panel);
   flex: 0 0 auto;
-}
-
-/* Windows has no inset traffic lights, so reclaim the space. */
-body.win .titlebar {
-  padding-left: 16px;
 }
 
 .titlebar button,
@@ -134,15 +224,6 @@ h1 {
   font-size: 11px;
   font-weight: 600;
   cursor: pointer;
-}
-
-main {
-  flex: 1 1 auto;
-  overflow-y: auto;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
 }
 
 .search {
@@ -428,4 +509,123 @@ button:disabled {
 .empty {
   color: var(--muted);
   font-size: 12px;
+}
+
+/* Fire Perimeter Tool */
+
+.fp-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.fp-row input[type='range'] {
+  flex: 1 1 220px;
+  min-width: 160px;
+  accent-color: var(--accent);
+}
+
+.chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 12px;
+}
+
+.chip.on {
+  background: var(--accent);
+  color: var(--accent-text);
+  border-color: var(--accent);
+  font-weight: 600;
+}
+
+.chip:disabled {
+  opacity: 0.45;
+}
+
+.fp-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 190px;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 4px;
+  background: var(--panel);
+}
+
+.fp-item {
+  display: grid;
+  grid-template-columns: 7em 7em 1fr 6.5em 5em;
+  gap: 8px;
+  align-items: baseline;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  padding: 5px 8px;
+  color: inherit;
+}
+
+.fp-item:hover {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.fp-item.on {
+  background: color-mix(in srgb, var(--accent) 24%, transparent);
+}
+
+/* The canvas owns its pixel size; CSS owns its layout size. */
+.fp-canvas {
+  width: 100%;
+  height: 380px;
+  min-height: 260px;
+  display: block;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-2);
+  cursor: grab;
+  touch-action: none;
+}
+
+.fp-canvas:active {
+  cursor: grabbing;
+}
+
+.fp-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fp-readout {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.fp-stat {
+  display: grid;
+  grid-template-columns: minmax(110px, 170px) 1fr;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.f-value.warn {
+  color: var(--warn);
+  font-weight: 600;
 }

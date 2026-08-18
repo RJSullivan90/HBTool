@@ -97,6 +97,34 @@ parser bug, fix it in both repos or write down why not.
 - The TFR cache is **session-only**. A stale layer restored at launch would look
   authoritative and be wrong.
 
+## Fire Perimeter Tool
+
+Source → view → **Simplify** → **Measure & clip**, with no export/re-import step
+between stages: switching to Measure already measures the SIMPLIFIED geometry,
+because that is what `simplifiedRings` materialises.
+
+- **Tolerance mode (Douglas–Peucker) bounds deviation by construction; percentage
+  mode (Visvalingam) does not.** Percentage ranks by triangle area, so a thin
+  spike scores low and can move the boundary 100 m+ at only 50% removal. The
+  measured deviation is the number to trust, and past 10 m it is flagged —
+  BCWS specifies GPS within 10 m and that is a contract term.
+- **The simplify → measure chain is memoised by key** (`source|id|mode|percent|
+  tolerance`). It used to be recomputed inside the render path in the Swift app,
+  so every redraw re-ran it and a 54,333-vertex perimeter pinned a core for
+  30-50 s with nothing having changed. Never invalidate by comparing geometry —
+  that costs exactly what the cache saves.
+- **A/B are geographic anchors, never (segment, t) indices.** The slider rebuilds
+  the vertex list, so an index would silently point elsewhere. They re-snap
+  through `nearestEdgePointLonLat`. A consequence worth knowing: where a
+  perimeter doubles back, an anchor can land on a segment far away in vertex
+  order — that is the correct answer to "what is nearest", not a bug.
+- **Markers draw independently of the arc**, so A appears on the first click
+  before there is any arc to draw.
+- A drag is not a click: `MapCanvas` ignores a pointer-up that moved more than a
+  few pixels, or panning the map would also move an A/B marker.
+- `measuredRings` drops a closed ring's duplicate closing vertex, or a
+  zero-length segment lands in the middle of the arc maths.
+
 ## Networking
 
 All fetches happen in the **main process**: tfr.faa.gov and aviationweather.gov

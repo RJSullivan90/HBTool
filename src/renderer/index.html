@@ -8,69 +8,62 @@
       http-equiv="Content-Security-Policy"
       content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; form-action 'none'; base-uri 'none'"
     />
-    <title>HBTool — TFR Report</title>
+    <title>HBTool</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <header class="titlebar">
-      <div class="brand">
-        <span class="mark" aria-hidden="true"></span>
-        <h1>TFR Report</h1>
-      </div>
-      <div class="titlebar-right">
-        <span id="update-badge" class="badge" hidden></span>
-        <span id="version" class="version"></span>
-      </div>
-    </header>
-
-    <main>
-      <section class="search">
-        <input
-          id="query"
-          type="search"
-          placeholder="Fire name, NOTAM number, or place — blank lists all"
-          autocomplete="off"
-          spellcheck="false"
-        />
-        <button id="search" class="primary">Search TFRs</button>
-        <button id="refresh" class="ghost" title="Discard the cache and refetch every current TFR">
-          Refresh
-        </button>
-      </section>
-
-      <p id="status" class="status"></p>
-      <p id="problem" class="problem" hidden></p>
-
-      <section id="matches" class="matches" aria-label="Matching TFRs"></section>
-
-      <section id="detail" class="detail" hidden></section>
-
-      <details id="settings" class="settings">
-        <summary>Satellite imagery key <span id="key-state" class="key-state"></span></summary>
-        <div class="settings-body">
-          <p class="muted">
-            Optional. The map imagery credential ships encrypted in this public repo; the team key
-            unlocks it. TFR lookups work without it. The key is stored in your operating
-            system&rsquo;s keychain, never on disk in the clear.
-          </p>
-          <div class="key-row">
-            <input id="key" type="password" placeholder="Team key" autocomplete="off" />
-            <label class="remember">
-              <input id="remember" type="checkbox" checked />
-              Remember on this computer
-            </label>
-            <button id="unlock" class="primary">Unlock</button>
-            <button id="forget" class="ghost">Forget</button>
-          </div>
-          <p id="key-message" class="muted"></p>
+    <div class="shell">
+      <nav class="sidebar" aria-label="Tools">
+        <div class="brand">
+          <span class="mark" aria-hidden="true"></span>
+          <span class="brand-name">HBTool</span>
         </div>
-      </details>
+        <div id="tool-list" class="tool-list"></div>
+        <div class="sidebar-foot">
+          <span id="version" class="version"></span>
+        </div>
+      </nav>
 
-      <footer class="disclaimer">
-        Reference only — not flight clearance. TFR boundaries and times change by NOTAM; verify
-        with the FAA before flying.
-      </footer>
-    </main>
+      <main class="pane">
+        <header class="titlebar">
+          <h1 id="tool-title">TFR Report</h1>
+          <div class="titlebar-right">
+            <span id="update-badge" class="badge" hidden></span>
+          </div>
+        </header>
+
+        <div class="pane-body">
+          <section id="tool-tfr" class="tool"></section>
+          <section id="tool-fire" class="tool" hidden></section>
+
+          <details id="settings" class="settings">
+            <summary>Satellite imagery key <span id="key-state" class="key-state"></span></summary>
+            <div class="settings-body">
+              <p class="muted">
+                Optional. The map imagery credential ships encrypted in this public repo; the team
+                key unlocks it. TFR lookups and perimeter downloads work without it. The key is
+                stored in your operating system&rsquo;s keychain, never on disk in the clear.
+              </p>
+              <div class="key-row">
+                <input id="key" type="password" placeholder="Team key" autocomplete="off" />
+                <label class="remember">
+                  <input id="remember" type="checkbox" checked />
+                  Remember on this computer
+                </label>
+                <button id="unlock" class="primary">Unlock</button>
+                <button id="forget" class="ghost">Forget</button>
+              </div>
+              <p id="key-message" class="muted"></p>
+            </div>
+          </details>
+
+          <footer class="disclaimer">
+            Reference only — not flight clearance. TFR boundaries and times change by NOTAM, and
+            fire perimeters are as of their last tracking run; verify before flying.
+          </footer>
+        </div>
+      </main>
+    </div>
 
     <script type="module" src="renderer.js"></script>
   </body>

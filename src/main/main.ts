@@ -10,7 +10,9 @@
 import { app, BrowserWindow, clipboard, ipcMain, shell } from 'electron';
 import { join } from 'node:path';
 
-import { fetchAllTFRs, fetchNearestStations } from './net.ts';
+import { fetchAllTFRs, fetchFires, fetchNearestStations } from './net.ts';
+import { saveTextFile } from './files.ts';
+import type { FireSourceId } from '../shared/fires.ts';
 import { currentStatus, forget, unlock, unlockFromStore } from './secrets.ts';
 import {
   checkForUpdates,
@@ -116,6 +118,18 @@ function registerIPC(): void {
     }
   });
 
+  ipcMain.handle('fires:fetch', async (_e, source: FireSourceId) => {
+    try {
+      return { ok: true as const, fires: await fetchFires(source) };
+    } catch (e) {
+      return { ok: false as const, error: describe(e) };
+    }
+  });
+
+  ipcMain.handle('file:saveKML', (_e, suggestedName: string, contents: string) =>
+    saveTextFile(win, suggestedName, contents),
+  );
+
   ipcMain.handle('clipboard:write', (_e, text: string) => {
     clipboard.writeText(text);
   });
@@ -134,7 +148,7 @@ function describe(e: unknown): string {
     return 'The request timed out. Check your connection and try again.';
   }
   if (/fetch failed|ENOTFOUND|EAI_AGAIN|ECONNREFUSED/i.test(msg)) {
-    return 'Could not reach the FAA. Check your connection and try again.';
+    return 'Could not reach the service. Check your connection and try again.';
   }
   return msg;
 }
