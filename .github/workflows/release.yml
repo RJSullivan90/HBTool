@@ -72,6 +72,21 @@ jobs:
         shell: bash
         run: test -s secrets/secrets.enc.json
 
+      # electron-builder names the release from package.json, NOT from the git
+      # tag. When they disagree, the build publishes onto the OLD version's
+      # release: v0.1.1 and v0.2.0 both silently overwrote the v0.1.0 assets,
+      # no new release appeared, and auto-update saw "0.1.0 == 0.1.0, nothing
+      # to do". Fail the build instead of shipping that confusion.
+      - name: Verify the tag matches package.json version
+        shell: bash
+        run: |
+          PKG="v$(node -p "require('./package.json').version")"
+          TAG="${GITHUB_REF_NAME}"
+          if [ "$PKG" != "$TAG" ]; then
+            echo "::error::Tag $TAG does not match package.json $PKG — bump with 'npm version' before tagging."
+            exit 1
+          fi
+
       - name: Build and publish
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
