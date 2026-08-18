@@ -29,7 +29,12 @@ type SecretsStatus = {
   canRemember: boolean;
   fingerprint: string | null;
 };
-type UpdateState = { status: string; version?: string; message?: string };
+type UpdateState = {
+  status: string;
+  version?: string;
+  percent?: number;
+  message?: string;
+};
 
 declare global {
   interface Window {
@@ -47,6 +52,7 @@ declare global {
       copy(text: string): Promise<void>;
       updateState(): Promise<UpdateState>;
       checkForUpdates(): Promise<UpdateState>;
+      downloadUpdate(): Promise<UpdateState>;
       installUpdate(): Promise<void>;
       openReleases(): Promise<void>;
       onUpdateChanged(fn: (s: UpdateState) => void): void;
@@ -346,13 +352,32 @@ function showUpdate(s: UpdateState): void {
         void window.hbtool.installUpdate();
       });
       break;
+    case 'downloading':
+      // Not clickable: the download is already running, and cancelling
+      // mid-transfer is not something electron-updater exposes cleanly.
+      show(`Downloading ${s.version ?? 'update'}… ${s.percent ?? 0}%`, () => {});
+      break;
     case 'available':
-      show(`Downloading ${s.version ?? 'update'}…`, () => {});
+      // Reached when the dialog was dismissed or declined — the badge becomes
+      // the second chance, so declining is not a dead end.
+      show(`Update ${s.version ?? ''} available — download`.replace('  ', ' '), () => {
+        void window.hbtool.downloadUpdate();
+      });
       break;
     case 'manual':
       show('Update available — download', () => {
         void window.hbtool.openReleases();
       });
+      break;
+    case 'idle':
+      // "declined this version" carries a message; a plain idle does not.
+      if (s.message && s.version) {
+        show(`Update ${s.version} available — download`, () => {
+          void window.hbtool.downloadUpdate();
+        });
+      } else {
+        els.badge.hidden = true;
+      }
       break;
     default:
       els.badge.hidden = true;

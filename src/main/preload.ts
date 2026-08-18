@@ -26,6 +26,7 @@ const api = {
 
   updateState: () => ipcRenderer.invoke('update:state'),
   checkForUpdates: () => ipcRenderer.invoke('update:check'),
+  downloadUpdate: () => ipcRenderer.invoke('update:download'),
   installUpdate: () => ipcRenderer.invoke('update:install'),
   openReleases: () => ipcRenderer.invoke('update:releases'),
   onUpdateChanged: (fn: (state: unknown) => void) => {

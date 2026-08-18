@@ -15,6 +15,7 @@ import { currentStatus, forget, unlock, unlockFromStore } from './secrets.ts';
 import {
   checkForUpdates,
   currentUpdateState,
+  downloadUpdate,
   initUpdater,
   onUpdateStateChange,
   openReleasesPage,
@@ -72,7 +73,10 @@ app.whenReady().then(async () => {
   win?.webContents.send('secrets:changed', status);
 
   onUpdateStateChange((s) => win?.webContents.send('update:changed', s));
-  initUpdater();
+  // A getter, not the window itself: the window is recreated on macOS after all
+  // windows close, and the updater must parent its dialogs to whatever is
+  // current rather than to a destroyed reference.
+  initUpdater(() => win);
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
@@ -117,7 +121,8 @@ function registerIPC(): void {
   });
 
   ipcMain.handle('update:state', () => currentUpdateState());
-  ipcMain.handle('update:check', () => checkForUpdates());
+  ipcMain.handle('update:check', () => checkForUpdates(true));
+  ipcMain.handle('update:download', () => downloadUpdate());
   ipcMain.handle('update:install', () => quitAndInstall());
   ipcMain.handle('update:releases', () => openReleasesPage());
 }
