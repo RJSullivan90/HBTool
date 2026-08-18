@@ -40,15 +40,15 @@ jobs:
     needs: test
     strategy:
       fail-fast: false
-      # ONE AT A TIME, deliberately. Run in parallel, both runners call
-      # electron-builder --publish at the same moment, neither sees a release
-      # for the tag yet, and each creates its own — producing TWO GitHub
-      # releases sharing one tag. That happened on v0.1.0: the Mac artifacts
-      # and the Windows artifacts landed on different releases, so one
-      # platform's update manifest (latest.yml / latest-mac.yml) was missing
-      # from whichever release resolved as "latest". Serialised, the first
-      # runner creates the release and the second finds it by tag and appends.
-      # Costs a few minutes of wall clock; buys a release that is correct.
+      # ONE AT A TIME. Serialisation alone was NOT enough: electron-builder's
+      # publisher refuses to append to an already-published release, so on
+      # v0.2.0 the second runner created a duplicate even though it ran after
+      # the first — and GitHub's tag-based download URLs then resolved against
+      # only one of the pair, 404ing the other platform's updater. That is why
+      # publishing below is done with `gh release upload` instead of
+      # electron-builder's publisher: create-if-absent, then upload by tag, is
+      # deterministic. The serialisation stays so create-then-upload cannot
+      # race either.
       max-parallel: 1
       matrix:
         include:
@@ -87,7 +87,20 @@ jobs:
             exit 1
           fi
 
-      - name: Build and publish
+      - name: Build
+        run: npm run ${{ matrix.script }} -- --publish never
+
+      # Explicit upload instead of electron-builder's publisher — see the
+      # max-parallel comment. --clobber makes a re-run of a failed job safe.
+      - name: Upload to the tagged release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm run ${{ matrix.script }} -- --publish always
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 \
+            || gh release create "$TAG" --repo "$GITHUB_REPOSITORY" \
+                 --title "${TAG#v}" --notes "HBTool ${TAG#v}"
+          shopt -s nullglob
+          gh release upload "$TAG" --repo "$GITHUB_REPOSITORY" --clobber \
+            release/*.dmg release/*.zip release/*.exe release/*.blockmap release/latest*.yml
