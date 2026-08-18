@@ -17,6 +17,12 @@ import {
   type MetarStation,
   type TFRRecord,
 } from '../shared/tfr.ts';
+import {
+  parseFires,
+  sourceURL,
+  type FirePerimeter,
+  type FireSourceId,
+} from '../shared/fires.ts';
 
 const UA = 'HBTool (Hummingbird Drones; rs@hummingbirddrones.ca)';
 
@@ -137,4 +143,18 @@ export async function fetchNearestStations(
     if (stations.length > 0) return stations.slice(0, count);
   }
   return [];
+}
+
+// MARK: - Fire perimeters
+
+/**
+ * Live perimeters for one source.
+ *
+ * No caching: unlike the TFR list, a perimeter is the thing the user came for
+ * and is expected to be current to the last tracking run. The timeout is
+ * generous because BC's WFS returns every current perimeter in one response —
+ * several MB on a busy season.
+ */
+export async function fetchFires(source: FireSourceId): Promise<FirePerimeter[]> {
+  return parseFires(await getJSON(sourceURL(source), 90_000), source);
 }
