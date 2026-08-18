@@ -117,7 +117,17 @@ matters for a form filled at the end of a night shift.
   the signature error and degrades to "update available — download" rather than
   pretending it worked. Buying an Apple Developer ID ($99/yr) is what fixes it.
 
-Releases are cut by tag: `npm version patch && git push --follow-tags`.
+Releases are cut by tag: `npm version patch && git push --follow-tags`, or
+`git tag vX.Y.Z && git push origin vX.Y.Z` to release the current version
+without bumping.
+
+**The release matrix runs `max-parallel: 1` on purpose.** In parallel, both
+runners call `electron-builder --publish` before either sees a release for the
+tag, so each creates its own — two GitHub releases sharing one tag, with the Mac
+and Windows update manifests on different releases. v0.1.0 shipped that way:
+`latest.yml` and `latest-mac.yml` ended up split, and which release resolved as
+"latest" differed between the REST API and the `/releases/latest/download/`
+redirect. Do not re-parallelise this to save four minutes.
 
 ## Verifying UI work
 
